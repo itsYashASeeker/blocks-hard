@@ -1,0 +1,36 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/Supply.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.8;\n\ncontract Supply {\n    address public owner;\n    uint public adminCount;\n    uint public supplierCount;\n\n    struct AdminI {\n        uint adminId;\n        address adminAdd;\n        string name;\n        string company_name;\n    }\n\n    struct SupplierI {\n        uint supplierId;\n        address supplierDD;\n        string name;\n        address adminAdd;\n    }\n\n    struct WorkerI {\n        uint workerId;\n        address workerDD;\n        string name;\n        address supplierAdd;\n    }\n\n    struct ProductInfo {\n        uint productId;\n        string name;\n        address supplierAddress;\n    }\n\n    struct ProductIT {\n        uint healthPerc;\n        address workerA;\n        string place;\n        string time;\n        uint productId;\n    }\n\n    // uint256[] suppAddress;\n\n    // event LogAddress(address msg2);\n    event success(string msg);\n    mapping(address => AdminI) public adminsM;\n    mapping(address => mapping(address => SupplierI)) public supplierM;\n    mapping(address => address) public supplierToAdmin;\n    mapping(address => WorkerI[]) public workerM;\n    mapping(uint => ProductIT[]) public productIM;\n\n    AdminI[] public adminSt;\n    SupplierI[] public supplierSt;\n    WorkerI[] public workerSt;\n    ProductInfo[] public productSt;\n\n    // AdminI[] public adminSt;\n\n    constructor() {\n        owner = msg.sender;\n        adminCount = 0;\n        supplierCount = 0;\n    }\n\n    function checkIfOwner() public view returns (string memory) {\n        require(msg.sender == owner, \"false\");\n        return \"true\";\n    }\n\n    function checkIfCompAdmin(address senderAddress) public view returns (string memory) {\n        require(adminsM[senderAddress].adminId != 0, \"false\");\n        return \"true\";\n    }\n\n    function checkIfSupplier(address senderAddress) public view returns (string memory) {\n        // uint isSuppplier=0;\n        // for (uint i = 0; i < supplierM[_adminAdd].length; i++) {\n        //     if(senderAddress == supplierM[_adminAdd][i].supplierDD){\n        //         isSuppplier=1;\n        //     }\n        //     require(senderAddress == supplierM[_adminAdd][i].supplierDD, \"false\");\n        // }\n        address adminAdd = supplierToAdmin[senderAddress];\n        require(supplierM[adminAdd][senderAddress].supplierId != 0, \"false\");\n        return \"true\";\n    }\n\n    function registerNewAdmin(\n        string memory _name,\n        string memory _company_name,\n        address _new_user\n    ) public {\n        checkIfOwner();\n        // require(checkIfCompAdmin(senderAddress););\n        AdminI memory newAdmins = AdminI({\n            adminId: adminCount + 1,\n            adminAdd: _new_user,\n            name: _name,\n            company_name: _company_name\n        });\n        adminsM[_new_user] = newAdmins;\n        adminSt.push(newAdmins);\n        adminCount++;\n        // supplierData[_new_user]=0;\n        emit success(\"Admin registered!!\");\n    }\n\n    function registerNewSupplier(\n        address senderAddress,\n        address _adminAddress,\n        string memory _name\n    ) public {\n        checkIfCompAdmin(_adminAddress);\n        supplierToAdmin[senderAddress] = _adminAddress;\n\n        supplierCount = supplierCount + 1;\n\n        SupplierI memory newSupplier = SupplierI({\n            supplierId: supplierCount,\n            supplierDD: senderAddress,\n            name: _name,\n            adminAdd: _adminAddress\n        });\n\n        supplierM[_adminAddress][senderAddress] = newSupplier;\n        // supplierData[_adminAdd].push(newSupplier);\n        // adminSt.push(newAdmins);\n        // adminCount++;\n        supplierSt.push(newSupplier);\n        emit success(\"Supply registered!!\");\n    }\n\n    // function registerNewWorker(string memory _name, address _suppAdd, address _senderAddress) public {\n    //     // checkIfSupplier(_adminAdd);\n    //     WorkerI memory newWorker = WorkerI({\n    //         workerId: workerM[_suppAdd].length,\n    //         workerDD: _senderAddress,\n    //         name: _name,\n    //         supplierAdd: _suppAdd\n    //     });\n\n    //     workerM[_suppAdd].push(newWorker);\n    //     // adminSt.push(newAdmins);\n    //     // adminCount++;\n\n    //     emit success(\"Worker registered!!\");\n    // }\n\n    function addProduct(string memory _name, address _senderAddress) public {\n        // checkIfOwner();\n        // checkIfCompAdmin(msg.sender);\n        checkIfSupplier(_senderAddress);\n        ProductInfo memory newProduct = ProductInfo({\n            productId: productSt.length,\n            name: _name,\n            supplierAddress: _senderAddress\n        });\n        productSt.push(newProduct);\n    }\n\n    function addProductTInfo(\n        address _senderAddress,\n        uint _healthPerc,\n        string memory _place,\n        string memory _time,\n        uint _productId\n    ) public {\n        // checkIfOwner();\n        // checkIfCompAdmin();\n        checkIfSupplier(_senderAddress);\n        ProductIT memory newProductIT = ProductIT({\n            healthPerc: _healthPerc,\n            workerA: _senderAddress,\n            place: _place,\n            time: _time,\n            productId: _productId\n        });\n\n        productIM[_productId].push(newProductIT);\n    }\n\n    function viewAllAdmins() public view returns (AdminI[] memory) {\n        return adminSt;\n    }\n\n    // function viewAllAdmins() public view returns (address) {\n    //         return adminSt[0].adminAdd;\n    //     }\n\n    function viewAllSuppliers() public view returns (SupplierI[] memory) {\n        // uint supc=supplierCount[_adminAdd];\n\n        return supplierSt;\n    }\n\n    // function viewAllWorkers(address _adminAdd) public view returns (WorkerI[] memory) {\n    //     return workerM[_adminAdd];\n    // }\n\n    function getAllProducts() public view returns (ProductInfo[] memory) {\n        return productSt;\n    }\n\n    function getProductHist(uint _productId) public view returns (ProductIT[] memory) {\n        return productIM[_productId];\n    }\n}\n"
+    }
+  },
+  "settings": {
+    "evmVersion": "paris",
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

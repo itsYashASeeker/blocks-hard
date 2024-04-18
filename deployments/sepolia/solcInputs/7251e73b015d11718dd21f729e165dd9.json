@@ -1,0 +1,36 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/Supply.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.8;\n\ncontract Supply {\n    address public owner;\n    uint public adminCount;\n\n    struct AdminI {\n        uint adminId;\n        address adminAdd;\n        string name;\n        string company_name;\n    }\n\n    struct SupplierI {\n        uint supplierId;\n        address supplierDD;\n        string name;\n        address adminAdd;\n    }\n\n    struct WorkerI {\n        uint workerId;\n        address workerDD;\n        string name;\n        address supplierAdd;\n    }\n\n    struct ProductInfo {\n        uint productId;\n        string name;\n        uint adminId;\n    }\n\n    struct ProductIT {\n        uint healthPerc;\n        address workerA;\n        string place;\n        string time;\n        uint productId;\n    }\n\n    event success(string msg);\n    mapping(address => AdminI) public adminsM;\n    mapping(address => SupplierI[]) public supplierM;\n    mapping(address => WorkerI[]) public workerM;\n    mapping(uint => ProductIT[]) public productIM;\n\n    AdminI[] public adminSt;\n    SupplierI[] public supplierSt;\n    WorkerI[] public workerSt;\n    ProductInfo[] public productSt;\n\n    // AdminI[] public adminSt;\n\n    constructor() {\n        owner = msg.sender;\n        adminCount = 0;\n    }\n\n    function checkIfOwner() public view returns (uint) {\n        require(msg.sender == owner, \"n\");\n        return 1;\n    }\n\n    function checkIfCompAdmin() public view returns (uint) {\n        for (uint i = 0; i < adminSt.length; i++) {\n            require(msg.sender == adminSt[i].adminAdd, \"n\");\n        }\n        return 1;\n    }\n\n    function checkIfSupplier(address _adminAdd) public view returns (uint) {\n        for (uint i = 0; i < supplierM[_adminAdd].length; i++) {\n            require(msg.sender == supplierM[_adminAdd][i].supplierDD, \"n\");\n        }\n        return 1;\n    }\n\n    function registerNewAdmin(string memory _name, string memory _company_name) public {\n        checkIfOwner();\n        AdminI memory newAdmins = AdminI({\n            adminId: adminCount + 1,\n            adminAdd: msg.sender,\n            name: _name,\n            company_name: _company_name\n        });\n        adminsM[msg.sender] = newAdmins;\n        adminSt.push(newAdmins);\n        adminCount++;\n\n        emit success(\"Admin registered!!\");\n    }\n\n    function registerNewSupplier(string memory _name, address _adminAdd) public {\n        checkIfCompAdmin();\n        SupplierI memory newSupplier = SupplierI({\n            supplierId: supplierM[_adminAdd].length,\n            supplierDD: msg.sender,\n            name: _name,\n            adminAdd: _adminAdd\n        });\n\n        supplierM[_adminAdd].push(newSupplier);\n        // adminSt.push(newAdmins);\n        // adminCount++;\n\n        emit success(\"Supply registered!!\");\n    }\n\n    function registerNewWorker(string memory _name, address _suppAdd, address _adminAdd) public {\n        checkIfSupplier(_adminAdd);\n        WorkerI memory newWorker = WorkerI({\n            workerId: workerM[_suppAdd].length,\n            workerDD: msg.sender,\n            name: _name,\n            supplierAdd: _suppAdd\n        });\n\n        workerM[_suppAdd].push(newWorker);\n        // adminSt.push(newAdmins);\n        // adminCount++;\n\n        emit success(\"Worker registered!!\");\n    }\n\n    function addProduct(string memory _name, uint _adminId) public {\n        checkIfOwner();\n        checkIfCompAdmin();\n        ProductInfo memory newProduct = ProductInfo({\n            productId: productSt.length,\n            name: _name,\n            adminId: _adminId\n        });\n        productSt.push(newProduct);\n    }\n\n    function addProductTInfo(\n        uint _healthPerc,\n        string memory _place,\n        string memory _time,\n        uint _productId,\n        address _adminAdd\n    ) public {\n        checkIfOwner();\n        checkIfCompAdmin();\n        checkIfSupplier(_adminAdd);\n        ProductIT memory newProductIT = ProductIT({\n            healthPerc: _healthPerc,\n            workerA: msg.sender,\n            place: _place,\n            time: _time,\n            productId: _productId\n        });\n\n        productIM[_productId].push(newProductIT);\n    }\n\n    function viewAllAdmins() public view returns (AdminI[] memory) {\n        return adminSt;\n    }\n\n    function viewAllSuppliers(address _adminAdd) public view returns (SupplierI[] memory) {\n        return supplierM[_adminAdd];\n    }\n\n    function viewAllWorkers(address _adminAdd) public view returns (WorkerI[] memory) {\n        return workerM[_adminAdd];\n    }\n\n    function getAllProducts() public view returns (ProductInfo[] memory) {\n        return productSt;\n    }\n\n    function getProductHist(uint _productId) public view returns (ProductIT[] memory) {\n        return productIM[_productId];\n    }\n}\n"
+    }
+  },
+  "settings": {
+    "evmVersion": "paris",
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
