@@ -5,6 +5,7 @@ contract Supply {
     address public owner;
     uint public adminCount;
     uint public supplierCount;
+    uint public productCount;
 
     struct AdminI {
         uint adminId;
@@ -62,6 +63,7 @@ contract Supply {
         owner = msg.sender;
         adminCount = 0;
         supplierCount = 0;
+        productCount = 0;
     }
 
     function checkIfOwner() public view returns (string memory) {
@@ -158,6 +160,8 @@ contract Supply {
             supplierAddress: _senderAddress
         });
         productSt.push(newProduct);
+        productCount = productCount + 1;
+        emit success("Supply registered!!");
     }
 
     function addProductTInfo(
@@ -179,10 +183,50 @@ contract Supply {
         });
 
         productIM[_productId].push(newProductIT);
+        emit success("Supply registered!!");
+    }
+
+    function getAdminCount() public view returns (uint) {
+        return adminCount;
+    }
+
+    function getSupplierCount() public view returns (uint) {
+        return supplierCount;
+    }
+
+    function getProductCount() public view returns (uint) {
+        return productCount;
+    }
+
+    function getProductHistoryCount(uint _productId) public view returns (uint) {
+        return productIM[_productId].length;
+    }
+
+    function getAdminByindex(uint _index) public view returns (AdminI memory) {
+        return adminSt[_index];
+    }
+
+    function getSupplierByindex(uint _index) public view returns (SupplierI memory) {
+        return supplierSt[_index];
+    }
+
+    function getProductByindex(uint _index) public view returns (ProductInfo memory) {
+        return productSt[_index];
+    }
+
+    function getProductHistoryByIndex(
+        uint _productId,
+        uint _index
+    ) public view returns (ProductIT memory) {
+        return productIM[_productId][_index];
     }
 
     function viewAllAdmins() public view returns (AdminI[] memory) {
-        return adminSt;
+        AdminI[] memory adminArray = new AdminI[](adminSt.length);
+        for (uint i = 0; i < adminSt.length; i++) {
+            adminArray[i + 1] = adminSt[i];
+        }
+        return adminArray;
     }
 
     // function viewAllAdmins() public view returns (address) {
@@ -192,7 +236,13 @@ contract Supply {
     function viewAllSuppliers() public view returns (SupplierI[] memory) {
         // uint supc=supplierCount[_adminAdd];
 
-        return supplierSt;
+        SupplierI[] memory suppArray = new SupplierI[](supplierSt.length);
+
+        for (uint i = 0; i < supplierSt.length; i++) {
+            suppArray[i] = supplierSt[i];
+        }
+
+        return suppArray;
     }
 
     // function viewAllWorkers(address _adminAdd) public view returns (WorkerI[] memory) {
@@ -200,7 +250,13 @@ contract Supply {
     // }
 
     function getAllProducts() public view returns (ProductInfo[] memory) {
-        return productSt;
+        ProductInfo[] memory prodArray = new ProductInfo[](productSt.length);
+
+        for (uint i = 0; i < productSt.length; i++) {
+            prodArray[i] = productSt[i];
+        }
+
+        return prodArray;
     }
 
     function getProductHist(uint _productId) public view returns (ProductIT[] memory) {

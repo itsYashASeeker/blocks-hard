@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/Users/yashkamleshchauhan/yash/projects/blockchain/blocksupp/blockshard/contracts/Supply.sol": {
-      "lastModificationDate": 1713344942093,
-      "contentHash": "e7a83677f8cdcb9726faad8b37832ed2",
+      "lastModificationDate": 1715358957664,
+      "contentHash": "c4e9ef186edf924e0b52495a4e10518d",
       "sourceName": "contracts/Supply.sol",
       "solcConfig": {
         "version": "0.8.24",
