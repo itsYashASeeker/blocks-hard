@@ -12,6 +12,7 @@ contract Supply {
         address adminAdd;
         string name;
         string company_name;
+        bool approved;
     }
 
     struct SupplierI {
@@ -32,6 +33,8 @@ contract Supply {
         uint productId;
         string name;
         address supplierAddress;
+        string image_url;
+        string description;
     }
 
     struct ProductIT {
@@ -47,12 +50,14 @@ contract Supply {
     // event LogAddress(address msg2);
     event success(string msg);
     mapping(address => AdminI) public adminsM;
+    // mapping(address => AdminI) public adminsTempM;
     mapping(address => mapping(address => SupplierI)) public supplierM;
     mapping(address => address) public supplierToAdmin;
     mapping(address => WorkerI[]) public workerM;
     mapping(uint => ProductIT[]) public productIM;
 
     AdminI[] public adminSt;
+    // AdminI[] public adminTempSt;
     SupplierI[] public supplierSt;
     WorkerI[] public workerSt;
     ProductInfo[] public productSt;
@@ -89,22 +94,45 @@ contract Supply {
         return "true";
     }
 
-    function registerNewAdmin(
+    function registerTempNewAdmin(
         string memory _name,
         string memory _company_name,
         address _new_user
     ) public {
-        checkIfOwner();
-        // require(checkIfCompAdmin(senderAddress););
         AdminI memory newAdmins = AdminI({
             adminId: adminCount + 1,
             adminAdd: _new_user,
             name: _name,
-            company_name: _company_name
+            company_name: _company_name,
+            approved: false
         });
         adminsM[_new_user] = newAdmins;
         adminSt.push(newAdmins);
         adminCount++;
+        // supplierData[_new_user]=0;
+        emit success("Temp Admin registered!!");
+    }
+
+    function registerNewAdmin(
+        string memory _name,
+        string memory _company_name,
+        address _new_user,
+        uint _user_id,
+        uint _index
+    ) public {
+        checkIfOwner();
+        // require(checkIfCompAdmin(senderAddress););
+        AdminI memory newAdmins = AdminI({
+            adminId: _user_id,
+            adminAdd: _new_user,
+            name: _name,
+            company_name: _company_name,
+            approved: true
+        });
+        adminsM[_new_user] = newAdmins;
+        // adminSt.push(newAdmins);
+        adminSt[_index] = newAdmins;
+        // adminCount++;
         // supplierData[_new_user]=0;
         emit success("Admin registered!!");
     }
@@ -150,14 +178,28 @@ contract Supply {
     //     emit success("Worker registered!!");
     // }
 
-    function addProduct(string memory _name, address _senderAddress) public {
+    function adminExists(address _senderAddress) public view returns (bool) {
+        return adminsM[_senderAddress].approved;
+    }
+
+    function addProduct(
+        string memory _name,
+        address _senderAddress,
+        string memory _description,
+        string memory _image_url
+    ) public {
         // checkIfOwner();
         // checkIfCompAdmin(msg.sender);
-        checkIfSupplier(_senderAddress);
+        bool adminExistsVar = adminExists(_senderAddress = _senderAddress);
+        if (adminExistsVar == false) {
+            checkIfSupplier(_senderAddress);
+        }
         ProductInfo memory newProduct = ProductInfo({
-            productId: productSt.length,
+            productId: productSt.length + 1,
             name: _name,
-            supplierAddress: _senderAddress
+            supplierAddress: _senderAddress,
+            description: _description,
+            image_url: _image_url
         });
         productSt.push(newProduct);
         productCount = productCount + 1;
@@ -173,7 +215,10 @@ contract Supply {
     ) public {
         // checkIfOwner();
         // checkIfCompAdmin();
-        checkIfSupplier(_senderAddress);
+        bool adminExistsVar = adminExists(_senderAddress = _senderAddress);
+        if (adminExistsVar == false) {
+            checkIfSupplier(_senderAddress);
+        }
         ProductIT memory newProductIT = ProductIT({
             healthPerc: _healthPerc,
             workerA: _senderAddress,
